@@ -30,7 +30,7 @@ export async function addRule(params) {
   });
 }
 export async function updateRule(params) {
-  return request('/admin/commodity/updat', {
+  return request('/admin/commodity/update', {
     method: 'POST',
     data: { ...params, method: 'update' },
   });

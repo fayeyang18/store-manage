@@ -34,20 +34,16 @@ const handleAdd = async (fields) => {
  */
 
 const handleUpdate = async (fields) => {
-  const hide = message.loading('正在配置');
+  const hide = message.loading('正在更新');
 
   try {
-    await updateRule({
-      name: fields.name,
-      desc: fields.desc,
-      key: fields.key,
-    });
+    await updateRule(fields);
     hide();
-    message.success('配置成功');
+    message.success('更新成功');
     return true;
   } catch (error) {
     hide();
-    message.error('配置失败请重试！');
+    message.error('更新失败请重试！');
     return false;
   }
 };
@@ -233,6 +229,7 @@ const TableList = () => {
       }
     },
   ];
+  console.log('currentROw', currentRow)
   return (
     <PageContainer>
       <ProTable
@@ -247,6 +244,7 @@ const TableList = () => {
             type="primary"
             key="primary"
             onClick={() => {
+              setCurrentRow();
               handleModalVisible(true);
             }}
           >
@@ -270,15 +268,17 @@ const TableList = () => {
         columns={columns}
       />
       <ModalForm
-        title={createModalVisible ? "编辑商品" : "新建商品"}
+        title={currentRow ? "编辑商品" : "新建商品"}
         width="600px"
         form={form}
         visible={createModalVisible}
         onVisibleChange={handleModalVisible}
         onFinish={async (value) => {
           const { file, price, bizId } = value;
-          const success = await handleAdd({
+          const request = currentRow ? handleUpdate : handleAdd;
+          const success = await request({
             ...value,
+            id: currentRow?.id,
             price: price * 100,
             picture: file[0]?.response,
             bizName: list.find(item => item.value === bizId)?.label,
@@ -302,6 +302,7 @@ const TableList = () => {
           ]}
           width="lg"
           name="name"
+          initialValue={currentRow ? currentRow?.name : undefined}
           label="商品名称"
           fieldProps={{
             size: 'large',
@@ -310,6 +311,11 @@ const TableList = () => {
         <ProFormUploadButton
           width="lg"
           listType="picture"
+          initialValue={currentRow ? [{
+            uid: '-1',
+            status: 'done',
+            url: `https://${currentRow?.picture}`,
+          }] : null}
           action='/admin/upload/file'
           name="file"
           label="商品图片"
@@ -327,6 +333,7 @@ const TableList = () => {
           ]}
           width="lg"
           name="price"
+          initialValue={currentRow?.price / 100}
           label="商品价格"
           fieldProps={{
             size: 'large',
@@ -341,6 +348,7 @@ const TableList = () => {
           ]}
           width="lg"
           name="number"
+          initialValue={currentRow?.number}
           label="商品库存"
           fieldProps={{
             size: 'large',
@@ -349,6 +357,7 @@ const TableList = () => {
          <ProFormSelect
           options={list}
           name="bizId"
+          initialValue={currentRow?.bizId}
           label="商品分区"
         />
       </ModalForm>

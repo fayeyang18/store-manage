@@ -161,7 +161,7 @@ const TableList = () => {
       search: false,
       render: (v, record) => {
         if (!record.status) {
-          if (+record.type === 1) return [
+          if (+record.type === 2) return [
             <a
               key="config"
               onClick={async () => {
@@ -181,7 +181,7 @@ const TableList = () => {
               onClick={async () => {
                 const data = await warehouseOrder(record.id);
                 if (data.isSuccess) {
-                  message.success('出库成功');
+                  message.success('入库成功');
                   actionRef.current?.reloadAndRest?.();
                 } else message.error(data.message);
               }}
